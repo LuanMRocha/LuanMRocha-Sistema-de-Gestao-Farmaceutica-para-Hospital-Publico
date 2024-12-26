@@ -101,11 +101,10 @@ public class Medico {
                 '}';
     }
 
-    public static boolean filtrarPorData(Medico medico, LocalDate dataInicio, LocalDate dataFim) {
-        return !medico.getDataRegistroCrm().isBefore(dataInicio) && !medico.getDataRegistroCrm().isAfter(dataFim);
+    public boolean filtrarPorData(LocalDate dataInicio, LocalDate dataFim) {
+        return !this.dataRegistroCrm.isBefore(dataInicio) && !this.dataRegistroCrm.isAfter(dataFim);
     }
 
-    // Método para cadastrar um médico
     public static Medico cadastrarMedico(Scanner scanner) {
         System.out.print("Digite o nome do médico: ");
         String nome = scanner.nextLine();
@@ -130,5 +129,27 @@ public class Medico {
         LocalDate dataRegistroCrm = LocalDate.parse(dataRegistroCrmStr);
 
         return new Medico(nome, crm, especialidade, telefone, email, endereco, dataRegistroCrm);
+    }
+
+    public void modificarInformacoes(String nome, String especialidade, String telefone, String email, String endereco) {
+        setNome(nome);
+        setEspecialidade(especialidade);
+        setTelefone(telefone);
+        setEmail(email);
+        setEndereco(endereco);
+    }
+
+    public boolean removerMedico(String crm) {
+        if (this.crm.equals(crm)) {
+            this.nome = null;
+            this.crm = null;
+            this.especialidade = null;
+            this.telefone = null;
+            this.email = null;
+            this.endereco = null;
+            this.dataRegistroCrm = null;
+            return true; // Médico removido com sucesso
+        }
+        return false; // CRM não corresponde
     }
 }
