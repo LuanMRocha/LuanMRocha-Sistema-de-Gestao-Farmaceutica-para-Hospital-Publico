@@ -16,11 +16,11 @@ public class Receituario {
         this.id = id;
         setDataEmissao(dataEmissao);
         this.idMedico = idMedico;
-        this.status = "Emitido";
+        this.status = "Emitido"; // Status padrão ao criar
         this.itens = new ArrayList<>();
     }
 
-    // Getters and setters
+    // Getters e setters
     public int getId() {
         return id;
     }
@@ -54,7 +54,7 @@ public class Receituario {
 
     public void setStatus(String status) {
         if (!status.equals("Emitido") && !status.equals("Cancelado")) {
-            throw new IllegalArgumentException("Status inválido.");
+            throw new IllegalArgumentException("Status inválido. Deve ser 'Emitido' ou 'Cancelado'.");
         }
         this.status = status;
     }
@@ -68,7 +68,7 @@ public class Receituario {
     }
 
     public List<ItemReceituario> getItens() {
-        return Collections.unmodifiableList(itens);
+        return Collections.unmodifiableList(itens); // Lista imutável para evitar manipulação externa
     }
 
     public void adicionarItem(ItemReceituario item) {
@@ -79,11 +79,9 @@ public class Receituario {
     }
 
     public double calcularValorTotal() {
-        double valorTotal = 0;
-        for (ItemReceituario item : itens) {
-            valorTotal += item.getQuantidade() * item.getMedicamento().getPreco();
-        }
-        return valorTotal;
+        return itens.stream()
+                .mapToDouble(item -> item.getQuantidade() * item.getMedicamento().getPreco())
+                .sum();
     }
 
     public void imprimir() {
@@ -91,12 +89,16 @@ public class Receituario {
         System.out.println("Data de Emissão: " + dataEmissao);
         System.out.println("ID do Médico: " + idMedico);
         System.out.println("Status: " + status);
-        System.out.println("Observações: " + observacoes);
+        System.out.println("Observações: " + (observacoes != null ? observacoes : "Nenhuma"));
         System.out.println("Itens do Receituário:");
-        for (ItemReceituario item : itens) {
-            System.out.println(item);
+        if (itens.isEmpty()) {
+            System.out.println("Nenhum item registrado.");
+        } else {
+            for (ItemReceituario item : itens) {
+                System.out.println(item);
+            }
         }
-        System.out.println("Valor Total: " + calcularValorTotal());
+        System.out.printf("Valor Total: R$ %.2f%n", calcularValorTotal());
     }
 
     public boolean isAtivo() {
@@ -108,12 +110,10 @@ public class Receituario {
     }
 
     public ItemReceituario getItemByMedicamento(String nomeMedicamento) {
-        for (ItemReceituario item : itens) {
-            if (item.getMedicamento().getNome().equalsIgnoreCase(nomeMedicamento)) {
-                return item;
-            }
-        }
-        return null;
+        return itens.stream()
+                .filter(item -> item.getMedicamento().getNome().equalsIgnoreCase(nomeMedicamento))
+                .findFirst()
+                .orElse(null);
     }
 
     // Método para filtrar receituários por data de emissão
@@ -141,11 +141,15 @@ public class Receituario {
             if (medicamento != null) {
                 System.out.print("Digite a quantidade: ");
                 int quantidade = scanner.nextInt();
-                scanner.nextLine();
+                scanner.nextLine(); // Consumir a quebra de linha
 
-                ItemReceituario itemReceituario = new ItemReceituario(medicamento, quantidade);
-                receituario.adicionarItem(itemReceituario);
-                System.out.println("Item adicionado ao receituário.");
+                if (quantidade > 0) {
+                    ItemReceituario itemReceituario = new ItemReceituario(medicamento, quantidade);
+                    receituario.adicionarItem(itemReceituario);
+                    System.out.println("Item adicionado ao receituário.");
+                } else {
+                    System.out.println("Quantidade inválida. Tente novamente.");
+                }
             } else {
                 System.out.println("Medicamento não encontrado.");
             }
