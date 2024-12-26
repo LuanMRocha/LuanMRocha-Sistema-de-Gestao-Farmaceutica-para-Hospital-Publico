@@ -1,4 +1,6 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Medicamento {
@@ -9,6 +11,7 @@ public class Medicamento {
     private int quantidadeEmEstoque;
     private LocalDate dataValidade;
 
+    // Construtor
     public Medicamento(String id, String nome, String formaFarmaceutica, String dosagem, int quantidadeEmEstoque, LocalDate dataValidade) {
         this.id = id;
         this.nome = nome;
@@ -18,6 +21,7 @@ public class Medicamento {
         this.dataValidade = dataValidade;
     }
 
+    // Getters e Setters
     public String getId() {
         return id;
     }
@@ -57,26 +61,6 @@ public class Medicamento {
         this.quantidadeEmEstoque = quantidadeEmEstoque;
     }
 
-    public boolean estaEmEstoque() {
-        return quantidadeEmEstoque > 0;
-    }
-
-    public void adicionarEstoque(int quantidade) {
-        if (quantidade > 0) {
-            this.quantidadeEmEstoque += quantidade;
-        } else {
-            throw new IllegalArgumentException("A quantidade para adicionar deve ser positiva.");
-        }
-    }
-
-    public void removerEstoque(int quantidade) {
-        if (quantidade > 0 && quantidade <= this.quantidadeEmEstoque) {
-            this.quantidadeEmEstoque -= quantidade;
-        } else {
-            throw new IllegalArgumentException("A quantidade para remover é inválida ou excede o estoque.");
-        }
-    }
-
     public LocalDate getDataValidade() {
         return dataValidade;
     }
@@ -85,31 +69,95 @@ public class Medicamento {
         this.dataValidade = dataValidade;
     }
 
-    public static boolean filtrarPorData(Medicamento medicamento, LocalDate dataInicio, LocalDate dataFim) {
-        return !medicamento.getDataValidade().isBefore(dataInicio) && !medicamento.getDataValidade().isAfter(dataFim);
+    // Verifica se o medicamento está em estoque
+    public boolean estaEmEstoque() {
+        return quantidadeEmEstoque > 0;
     }
 
-    // Método para cadastrar medicamento
-    public static Medicamento cadastrarMedicamento(Scanner scanner) {
-        System.out.print("Digite o nome do medicamento: ");
-        String nome = scanner.nextLine();
+    // Adiciona ao estoque
+    public void adicionarEstoque(int quantidade) {
+        if (quantidade > 0) {
+            this.quantidadeEmEstoque += quantidade;
+        } else {
+            throw new IllegalArgumentException("A quantidade para adicionar deve ser positiva.");
+        }
+    }
 
-        System.out.print("Digite a forma farmacêutica: ");
-        String formaFarmaceutica = scanner.nextLine();
+    // Remove do estoque
+    public void removerEstoque(int quantidade) {
+        if (quantidade > 0 && quantidade <= this.quantidadeEmEstoque) {
+            this.quantidadeEmEstoque -= quantidade;
+        } else {
+            throw new IllegalArgumentException("A quantidade para remover é inválida ou excede o estoque.");
+        }
+    }
 
-        System.out.print("Digite a dosagem: ");
-        String dosagem = scanner.nextLine();
+    // Método para filtrar por validade
+    public boolean filtrarPorData(LocalDate dataInicio, LocalDate dataFim) {
+        return !this.dataValidade.isBefore(dataInicio) && !this.dataValidade.isAfter(dataFim);
+    }
 
-        System.out.print("Digite a quantidade em estoque: ");
-        int quantidadeEmEstoque = scanner.nextInt();
-        scanner.nextLine(); // Consumir a nova linha
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Nome: " + nome + ", Forma Farmacêutica: " + formaFarmaceutica + ", Dosagem: " + dosagem
+                + ", Quantidade em Estoque: " + quantidadeEmEstoque + ", Data de Validade: " + dataValidade;
+    }
+}
 
-        System.out.print("Digite a data de validade (AAAA-MM-DD): ");
-        String dataValidadeStr = scanner.nextLine();
-        LocalDate dataValidade = LocalDate.parse(dataValidadeStr);
+// Classe para gerenciar os medicamentos
+class MedicamentoService {
+    private List<Medicamento> medicamentos;
 
-        String id = "ID-" + nome.toUpperCase().substring(0, 3) + "-" + System.currentTimeMillis(); // Criando um ID único simples
+    // Construtor
+    public MedicamentoService() {
+        this.medicamentos = new ArrayList<>();
+    }
 
-        return new Medicamento(id, nome, formaFarmaceutica, dosagem, quantidadeEmEstoque, dataValidade);
+    // Adicionar um medicamento
+    public void adicionarMedicamento(Medicamento medicamento) {
+        medicamentos.add(medicamento);
+    }
+
+    // Remover um medicamento pelo ID
+    public boolean removerMedicamento(String id) {
+        return medicamentos.removeIf(medicamento -> medicamento.getId().equals(id));
+    }
+
+    // Atualizar informações de um medicamento pelo ID
+    public boolean atualizarMedicamento(String id, Scanner scanner) {
+        for (Medicamento medicamento : medicamentos) {
+            if (medicamento.getId().equals(id)) {
+                System.out.print("Digite o novo nome: ");
+                medicamento.setNome(scanner.nextLine());
+
+                System.out.print("Digite a nova forma farmacêutica: ");
+                medicamento.setFormaFarmaceutica(scanner.nextLine());
+
+                System.out.print("Digite a nova dosagem: ");
+                medicamento.setDosagem(scanner.nextLine());
+
+                System.out.print("Digite a nova quantidade em estoque: ");
+                int novaQuantidade = scanner.nextInt();
+                medicamento.setQuantidadeEmEstoque(novaQuantidade);
+
+                scanner.nextLine(); // Consumir nova linha
+                System.out.print("Digite a nova data de validade (AAAA-MM-DD): ");
+                medicamento.setDataValidade(LocalDate.parse(scanner.nextLine()));
+
+                return true;
+            }
+        }
+        return false; // Medicamento não encontrado
+    }
+
+    // Listar todos os medicamentos
+    public void listarMedicamentos() {
+        if (medicamentos.isEmpty()) {
+            System.out.println("Nenhum medicamento cadastrado.");
+        } else {
+            for (Medicamento medicamento : medicamentos) {
+                System.out.println(medicamento);
+            }
+        }
     }
 }
