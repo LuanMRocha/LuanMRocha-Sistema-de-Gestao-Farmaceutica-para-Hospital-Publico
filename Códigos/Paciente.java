@@ -26,6 +26,7 @@ public class Paciente {
         this.alergias = new HashMap<>();
     }
 
+    // Métodos getters e setters
     public String getNome() {
         return nome;
     }
@@ -124,11 +125,32 @@ public class Paciente {
         System.out.println("Nome: " + nome + ", CPF: " + cpf);
     }
 
-    public static boolean filtrarPorData(Paciente paciente, LocalDate dataInicio, LocalDate dataFim) {
-        return !paciente.getDataNascimento().isBefore(dataInicio) && !paciente.getDataNascimento().isAfter(dataFim);
+    // Métodos para modificar e remover informações de um paciente
+    public void modificarInformacoes(String nome, LocalDate dataNascimento, Endereco endereco, String telefone) {
+        setNome(nome);
+        setDataNascimento(dataNascimento);
+        setEndereco(endereco);
+        setTelefone(telefone);
     }
 
-    // Método para cadastrar um paciente
+    public boolean removerPaciente(String cpf) {
+        if (this.cpf.equals(cpf)) {
+            this.nome = null;
+            this.dataNascimento = null;
+            this.endereco = null;
+            this.telefone = null;
+            this.cpf = null;
+            this.receituarios.clear();
+            this.alergias.clear();
+            return true; // Paciente removido com sucesso
+        }
+        return false; // CPF não corresponde
+    }
+
+    public boolean filtrarPorData(LocalDate dataInicio, LocalDate dataFim) {
+        return !this.dataNascimento.isBefore(dataInicio) && !this.dataNascimento.isAfter(dataFim);
+    }
+
     public static Paciente cadastrarPaciente(Scanner scanner) {
         System.out.print("Digite o nome do paciente: ");
         String nome = scanner.nextLine();
@@ -146,8 +168,7 @@ public class Paciente {
         System.out.print("Digite o endereço do paciente: ");
         String endereco = scanner.nextLine(); // Assume que Endereco é uma classe e deve ser tratada separadamente.
 
-        // Criando um objeto Endereco temporário para exemplo. Ajuste conforme necessário.
-        Endereco enderecoPaciente = new Endereco(endereco); 
+        Endereco enderecoPaciente = new Endereco(endereco); // Exemplo de criação de endereço
 
         return new Paciente(nome, dataNascimento, enderecoPaciente, telefone, cpf);
     }
